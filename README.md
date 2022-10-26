@@ -44,7 +44,7 @@ if v, ok := cache.Get(1); !ok {
 }
 ```
 
-## Use TTL LRU Cache
+## Use TTL Cache
 
 ```go
 import tlcache "github.com/JamesYYang/go-ttl-lru"
