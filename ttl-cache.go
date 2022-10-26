@@ -1,7 +1,6 @@
 package tlcache
 
 import (
-	"log"
 	"sort"
 	"time"
 )
@@ -33,11 +32,8 @@ func (c *ttlCache) add(key Key, value interface{}) {
 		c.expiration = make(map[int64]Key)
 	}
 	if ee, ok := c.cache[key]; ok {
-		ee.ttl = time.Now().Add(c.expiry)
 		ee.value = value
-
-		exp := ee.ttl.UnixNano()
-		c.expiration[exp] = key
+		c.changeTTL(key)
 		return
 	}
 
@@ -55,6 +51,15 @@ func (c *ttlCache) add(key Key, value interface{}) {
 	}
 }
 
+func (c *ttlCache) changeTTL(key Key) {
+	if ee, ok := c.cache[key]; ok {
+		delete(c.expiration, ee.ttl.UnixNano())
+		ee.ttl = time.Now().Add(c.expiry)
+		exp := ee.ttl.UnixNano()
+		c.expiration[exp] = key
+	}
+}
+
 func (c *ttlCache) size() int {
 	if c.cache == nil {
 		return 0
@@ -62,7 +67,6 @@ func (c *ttlCache) size() int {
 	return len(c.cache)
 }
 
-// Get looks up a key's value from the cache.
 func (c *ttlCache) get(key Key) (value interface{}, ok bool) {
 	if c.cache == nil {
 		return
@@ -73,17 +77,13 @@ func (c *ttlCache) get(key Key) (value interface{}, ok bool) {
 			return
 		}
 		if c.updateAgeOnGet {
-			oldTTL := ele.ttl
-			ele.ttl = time.Now().Add(c.expiry)
-			delete(c.expiration, oldTTL.UnixNano())
-			c.expiration[ele.ttl.UnixNano()] = key
+			c.changeTTL(key)
 		}
 		return ele.value, hit
 	}
 	return
 }
 
-// Remove removes the provided key from the cache.
 func (c *ttlCache) remove(key Key) {
 	if c.cache == nil {
 		return
@@ -93,17 +93,14 @@ func (c *ttlCache) remove(key Key) {
 	}
 }
 
-// RemoveOldest removes the oldest item from the cache.
 func (c *ttlCache) purgeToCapacity() {
-	log.Println("do purge")
 	expKeys := make([]int64, 0, len(c.expiration))
 	for k := range c.expiration {
 		expKeys = append(expKeys, k)
 	}
 	sort.Slice(expKeys, func(i, j int) bool { return expKeys[i] < expKeys[j] })
-	log.Println(expKeys)
-	for k := range expKeys {
-		c.remove(c.expiration[int64(k)])
+	for _, k := range expKeys {
+		c.remove(c.expiration[k])
 
 		if len(c.cache) <= c.maxEntries {
 			return
@@ -116,7 +113,6 @@ func (c *ttlCache) removeElement(e *entry) {
 	delete(c.cache, e.key)
 }
 
-// Clear purges all stored items from the cache.
 func (c *ttlCache) clear() {
 	c.cache = nil
 	c.expiration = nil

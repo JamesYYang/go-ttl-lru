@@ -9,9 +9,9 @@ import (
 
 func main() {
 
-	// lruExample()
+	lruExample()
 
-	// lruTTLExample()
+	lruTTLExample()
 
 	ttlExample()
 }
@@ -70,7 +70,7 @@ func lruTTLExample() {
 }
 
 func ttlExample() {
-	cache := tlcache.NewTTLCache(5, 5*time.Second, true)
+	cache := tlcache.NewTTLCache(5, 5*time.Second, false)
 
 	cache.Add(1, "this is test 1")
 	time.Sleep(3 * time.Millisecond)

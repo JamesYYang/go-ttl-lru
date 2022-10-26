@@ -49,7 +49,6 @@ func (c *lruCache) size() int {
 	return c.ll.Len()
 }
 
-// Get looks up a key's value from the cache.
 func (c *lruCache) get(key Key) (value interface{}, ok bool) {
 
 	if c.cache == nil {
@@ -66,7 +65,6 @@ func (c *lruCache) get(key Key) (value interface{}, ok bool) {
 	return
 }
 
-// Remove removes the provided key from the cache.
 func (c *lruCache) remove(key Key) {
 	if c.cache == nil {
 		return
@@ -76,7 +74,6 @@ func (c *lruCache) remove(key Key) {
 	}
 }
 
-// RemoveOldest removes the oldest item from the cache.
 func (c *lruCache) removeOldest() {
 	if c.cache == nil {
 		return
@@ -93,7 +90,6 @@ func (c *lruCache) removeElement(e *list.Element) {
 	delete(c.cache, kv.key)
 }
 
-// Clear purges all stored items from the cache.
 func (c *lruCache) clear() {
 	c.ll = nil
 	c.cache = nil
