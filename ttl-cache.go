@@ -100,10 +100,10 @@ func (c *ttlCache) purgeToCapacity() {
 	}
 	sort.Slice(expKeys, func(i, j int) bool { return expKeys[i] < expKeys[j] })
 	for _, k := range expKeys {
-		c.remove(c.expiration[k])
-
-		if len(c.cache) <= c.maxEntries {
+		if len(c.cache) <= c.maxEntries && k > time.Now().UnixNano() {
 			return
+		} else {
+			c.remove(c.expiration[k])
 		}
 	}
 }

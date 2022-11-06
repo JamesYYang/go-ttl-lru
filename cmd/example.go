@@ -92,15 +92,23 @@ func ttlExample() {
 
 	if v, ok := cache.Get(2); ok {
 		log.Printf("get key (%d) success, value: %s", 2, v)
+		log.Printf("cache size: %d", cache.Size())
 	}
 
 	time.Sleep(3 * time.Second)
 
-	if v, ok := cache.Get(2); ok {
-		log.Printf("get key (%d) success, value: %s", 2, v)
-	}
-
 	if _, ok := cache.Get(3); !ok {
 		log.Printf("get key (%d) failed", 3)
+		log.Printf("cache size: %d", cache.Size())
+	}
+
+	log.Println("Add new three item")
+	cache.Add(7, "this is test 7")
+	cache.Add(8, "this is test 8")
+	cache.Add(9, "this is test 9")
+	log.Printf("cache size: %d", cache.Size())
+
+	if v, ok := cache.Get(8); ok {
+		log.Printf("get key (%d) success, value: %s", 8, v)
 	}
 }
